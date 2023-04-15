@@ -1,13 +1,13 @@
 from fastapi import Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
-from . import webgui_router
+from . import api_router
 from .models import AuthorizationRequest
 
 
-@webgui_router.post('/login')
+@api_router.post('/login')
 async def login(request : AuthorizationRequest):
     print(request)
-    return
+    return JSONResponse("{}")
 
 
