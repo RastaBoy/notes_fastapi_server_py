@@ -5,8 +5,8 @@ from loguru import logger as log
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from sqlalchemy.ext.asyncio import create_async_engine, async_scoped_session, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 
 __CONNECTION_STRING__ = 'sqlite+aiosqlite://database.db'
@@ -23,13 +23,20 @@ class DataBaseController:
 
     @staticmethod
     async def __make_mirations__(session : AsyncSession):
-        if os.path.isdir(__MIGRATIONS_PATH):
-            content = os.listdir(__MIGRATIONS_PATH)
-            for file in content:
-                if os.path.isfile(os.path.join(__MIGRATIONS_PATH, file)) and file.endswith('.sql'):
-                    # TODO нужно будет придумать механизм миграции
-                    # Папка с sql файлами формата *версия*_*название*.sql 
-                    ...
+            if os.path.isdir(__MIGRATIONS_PATH):
+                content = os.listdir(__MIGRATIONS_PATH)
+                for file in content:
+                    if os.path.isfile(os.path.join(__MIGRATIONS_PATH, file)) and file.endswith('.sql'):
+                        # TODO нужно будет придумать механизм миграции
+                        # Папка с sql файлами формата *версия*_*название*.sql
+                        try:
+                            with open(os.path.join(__MIGRATIONS_PATH, file), 'r') as f:
+                                for query in f.readlines():
+                                    await session.execute(query)
+                        except Exception as e:
+                            log.exception(f"В ходе выполнения миграций при выполнении команды {query} возникло исключение \"{e.__class__.__name__}\": {e}")
+                            break
+
 
     @staticmethod
     async def create_database():
