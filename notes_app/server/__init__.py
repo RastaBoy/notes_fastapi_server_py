@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
 
 from starlette.responses import FileResponse
 
@@ -32,7 +33,10 @@ def build_app(debug : bool = False) -> FastAPI:
         allow_headers=['*']
     )
 
-    
+    # Обработчик ошибок валидации (RequestValidationError) надо добавить
+    # @app.exception_handler()
+
+
     @app.get('/{path:path}')
     async def index(path : str):
         # Похоже на костыль, наверняка это должно как-то по-другому делаться
