@@ -4,3 +4,6 @@ venv
 *.env
 __pycache__
 *.db
+logs
+*.log
+tests.py

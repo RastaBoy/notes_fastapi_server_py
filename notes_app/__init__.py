@@ -4,7 +4,7 @@ from loguru import logger as log
 from .server import run_server
 from .config import Config, DevConfig
 
-from .db import Database
+from .db import DataBaseController
 
 __version__ = (1,0,0,0)
 
@@ -17,7 +17,7 @@ log.critical('='*15 + ' Инициализация Notes_FastAPI_Server v'+".".j
 
 async def start():
     try:
-        await Database.create_database()
-        await run_server(Config().server, DevConfig().debug_mode)
+        await DataBaseController.create_database()
+        # await run_server(Config().server, DevConfig().debug_mode)
     except KeyboardInterrupt:
         pass

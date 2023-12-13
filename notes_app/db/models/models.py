@@ -4,7 +4,7 @@ from typing import List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .. import Base
+from . import Base
 
 class User(Base):
     __tablename__ = 'users'
@@ -16,6 +16,7 @@ class User(Base):
     hash : Mapped[str] = mapped_column(nullable=False)
 
     dt_create : Mapped[datetime] = mapped_column(default=datetime.now())
+
     user_notes : Mapped[List['Note']] = relationship(back_populates='creator')
 
 
@@ -29,5 +30,5 @@ class Note(Base):
     dt_create : Mapped[datetime] = mapped_column(default=datetime.now())
     dt_update : Mapped[datetime] = mapped_column(default=datetime.now())
 
-    creator_id : Mapped[int] = mapped_column(ForeignKey('notes.id'))
+    creator_id : Mapped[int] = mapped_column(ForeignKey('users.id'))
     creator : Mapped[User] = relationship(back_populates='user_notes')
