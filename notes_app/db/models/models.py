@@ -12,8 +12,8 @@ class User(Base):
     id : Mapped[int] = mapped_column(primary_key=True)
     first_name : Mapped[str] = mapped_column(default='')
     second_name : Mapped[str] = mapped_column(default='')
-    email : Mapped[str] = mapped_column(nullable=False)
-    hash : Mapped[str] = mapped_column(nullable=False)
+    email : Mapped[str] = mapped_column(nullable=False, unique=True)
+    hash : Mapped[str] = mapped_column(nullable=False, unique=True)
 
     dt_create : Mapped[datetime] = mapped_column(default=datetime.now())
 
