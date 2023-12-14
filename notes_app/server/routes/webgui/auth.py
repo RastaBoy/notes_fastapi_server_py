@@ -18,7 +18,7 @@ async def login(request : AuthRequest):
         return JSONResponse(
             status_code=200, 
             content={
-                "token" : user_token
+                "user_token" : user_token
             }
         )
 
@@ -30,6 +30,6 @@ async def register(request : RegisterRequest):
         return JSONResponse(
             status_code=200,
             content={
-                'token' : user_token
+                'user_token' : user_token
             }
         )

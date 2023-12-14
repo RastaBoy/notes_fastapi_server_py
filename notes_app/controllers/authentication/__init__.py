@@ -23,7 +23,7 @@ class AuthenticationController():
         payload : dict = jwt.decode(
             user_token,
             "secret",
-            "H256"
+            "HS256"
         )
         if payload.get('email') is None:
             raise AuthenticationException('Некорректный токен пользователя.')
@@ -46,7 +46,7 @@ class AuthenticationController():
                 'password' : hash
             },
             key='secret',
-            algorithm='H256'
+            algorithm='HS256'
         )
 
 
@@ -71,6 +71,10 @@ class AuthenticationController():
     
 
     async def register(self, request : RegisterRequest) -> str:
+        user = await self.user_service.get_by_email(request.email)
+        if user is not None:
+            raise AuthenticationException(f"Пользователь с email \"{request.email}\" уже существует в системе.")
+        
         # Пока будем добавлять всех подряд просто так
         user_model = await self.user_service.create(
             User(
