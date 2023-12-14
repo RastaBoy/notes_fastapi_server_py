@@ -1,13 +1,12 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, EmailStr
 
-@dataclass
-class AuthRequest:
-    email : str
+class AuthRequest(BaseModel):
+    email : EmailStr
     password : str
 
 
-class RegisterRequest:
-    email : str
+class RegisterRequest(BaseModel):
+    email : EmailStr
     first_name : str
     second_name : str
     password : str

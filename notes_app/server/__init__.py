@@ -1,6 +1,7 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +14,7 @@ from hypercorn.config import Config as HyperConfig
 from .routes.webgui import api_router
 
 from ..config import ServerSettings
+from ..controllers.authentication.exc import AuthenticationException
 
 STATIC_FOLDER_PATH = os.path.join(os.getcwd(), 'static')
 
@@ -33,8 +35,36 @@ def build_app(debug : bool = False) -> FastAPI:
         allow_headers=['*']
     )
 
-    # Обработчик ошибок валидации (RequestValidationError) надо добавить
-    # @app.exception_handler()
+
+    @app.exception_handler(Exception)
+    async def base_exceptions(request : Request, exc : Exception):
+        # TODO Похоже на кашу с самоповторами, нужно переделать
+        if type(exc) in (RequestValidationError, ):
+            return JSONResponse(
+                status_code=400,
+                content={
+                    'error_class' : exc.__class__.__name__,
+                    'message' : str(exc)
+                }
+            )
+        
+        if isinstance(exc, AuthenticationException):
+            return JSONResponse(
+                status_code=401,
+                content={
+                    'error_class' : exc.__class__.__name__,
+                    'message' : str(exc)
+                }
+            )
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                'error_class' : exc.__class__.__name__,
+                'message' : str(exc)
+            }
+        )
+
 
 
     @app.get('/{path:path}')

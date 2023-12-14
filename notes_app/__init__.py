@@ -18,6 +18,6 @@ log.critical('='*15 + ' Инициализация Notes_FastAPI_Server v'+".".j
 async def start():
     try:
         await DataBaseController.create_database()
-        # await run_server(Config().server, DevConfig().debug_mode)
+        await run_server(Config().server, DevConfig().debug_mode)
     except KeyboardInterrupt:
         pass

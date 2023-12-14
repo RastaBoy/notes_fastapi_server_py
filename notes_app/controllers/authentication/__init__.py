@@ -1,5 +1,4 @@
-import json
-
+import json, jwt
 from hashlib import sha256
 
 from .dto import AuthRequest, RegisterRequest
@@ -19,6 +18,18 @@ class AuthenticationController():
 
     SOLD = '4jzTUlVrvVWl9s2qTMmDt2HaOlv4qkPR'
 
+    @staticmethod
+    def get_email_from_jwt(user_token : str) -> str:
+        payload : dict = jwt.decode(
+            user_token,
+            "secret",
+            "H256"
+        )
+        if payload.get('email') is None:
+            raise AuthenticationException('Некорректный токен пользователя.')
+        
+        return payload['email']
+
     def __init__(self, user_service : UserService):
         self.user_service = user_service
         
@@ -28,7 +39,20 @@ class AuthenticationController():
         return sha256((email + self.SOLD + password).encode('utf-8')).hexdigest()
 
 
-    async def login(self, request : AuthRequest):
+    def get_user_jwt_token(self, email : str, hash : str) -> str:
+        return jwt.encode(
+            payload={
+                'email' : email,
+                'password' : hash
+            },
+            key='secret',
+            algorithm='H256'
+        )
+
+
+
+
+    async def login(self, request : AuthRequest) -> str:
         user_hash = self.__get_user_hash__(
             request.email,
             request.password
@@ -40,11 +64,13 @@ class AuthenticationController():
         if user_model.hash != user_hash:
             raise AuthenticationException(f"Неверно указаны email/пароль.")
         
-        # Пользователь найден и пароль совпал, здесь можно возвращать JWT-токен
-        return 
+        return self.get_user_jwt_token(
+            user_model.email,
+            user_model.hash
+        )
     
 
-    async def register(self, request : RegisterRequest):
+    async def register(self, request : RegisterRequest) -> str:
         # Пока будем добавлять всех подряд просто так
         user_model = await self.user_service.create(
             User(
@@ -58,6 +84,8 @@ class AuthenticationController():
             )
         )
 
-        # Возвращать тот же JWT токен
-        return
+        return self.get_user_jwt_token(
+            user_model.email,
+            user_model.hash
+        )
             
